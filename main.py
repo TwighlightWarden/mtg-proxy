@@ -8,29 +8,33 @@ app = FastAPI(
     ]
 )
 
-SCRYFALL_NAMED_URL = "https://api.scryfall.com/cards/named"
+SCRYFALL_SEARCH_URL = "https://api.scryfall.com/cards/search"
 SCRYFALL_CARD_URL = "https://api.scryfall.com/cards"
 
 @app.get("/cards/search")
 async def search_card(q: str):
     async with httpx.AsyncClient() as client:
-        # First try exact
-        resp = await client.get(SCRYFALL_NAMED_URL, params={"exact": q})
-
-        # If exact fails, try fuzzy
-        if resp.status_code != 200:
-            resp = await client.get(SCRYFALL_NAMED_URL, params={"fuzzy": q})
+        resp = await client.get(
+            SCRYFALL_SEARCH_URL,
+            params={"q": q, "order": "name"}
+        )
 
         if resp.status_code != 200:
             raise HTTPException(status_code=404, detail="Card not found")
 
         data = resp.json()
+        cards = data.get("data", [])
+
+        if not cards:
+            raise HTTPException(status_code=404, detail="Card not found")
+
+        first = cards[0]
 
         return {
             "cards": [
                 {
-                    "id": data["id"],
-                    "name": data["name"]
+                    "id": first["id"],
+                    "name": first["name"]
                 }
             ]
         }
