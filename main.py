@@ -4,7 +4,7 @@ import httpx
 app = FastAPI(
     title="MTG Proxy",
     servers=[
-        {"url": "https://mtg-proxy-6y1f.onrender.com"}
+        {"url": "https://mtg-proxy-6ylf.onrender.com"}
     ]
 )
 
@@ -14,7 +14,12 @@ SCRYFALL_CARD_URL = "https://api.scryfall.com/cards"
 @app.get("/cards/search")
 async def search_card(q: str):
     async with httpx.AsyncClient() as client:
-        resp = await client.get(SCRYFALL_NAMED_URL, params={"fuzzy": q})
+        # First try exact
+        resp = await client.get(SCRYFALL_NAMED_URL, params={"exact": q})
+
+        # If exact fails, try fuzzy
+        if resp.status_code != 200:
+            resp = await client.get(SCRYFALL_NAMED_URL, params={"fuzzy": q})
 
         if resp.status_code != 200:
             raise HTTPException(status_code=404, detail="Card not found")
