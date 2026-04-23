@@ -4,7 +4,7 @@ import httpx
 app = FastAPI(
     title="MTG Proxy",
     servers=[
-        {"url": "https://maritime-spree-unvarying.ngrok-free.dev"}
+        {"url": "https://mtg-proxy-6y1f.onrender.com"}
     ]
 )
 
