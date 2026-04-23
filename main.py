@@ -8,6 +8,10 @@ app = FastAPI(
     ]
 )
 
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
 SCRYFALL_SEARCH_URL = "https://api.scryfall.com/cards/search"
 SCRYFALL_CARD_URL = "https://api.scryfall.com/cards"
 
